@@ -100,6 +100,7 @@ namespace RocketLauncherMod
 				"Size of the launcher model in the hand. Changeable live with /rocketmodel scale N.");
 
 			HomingMissiles.Bind(Config);
+			ModCredits.Bind(Config);
 		}
 
 		private void Update()
@@ -215,6 +216,16 @@ namespace RocketLauncherMod
 			{
 				Log.LogError("Harmony patches failed: " + ex);
 				yield break;
+			}
+			try
+			{
+				// Cosmetic, so it gets its own pass: a throw in here must not take
+				// the launcher down with it (the catch above aborts the mod).
+				new Harmony("com.kimox.rocketlauncher.credits").PatchAll(typeof(ModCredits.CreditsPatches));
+			}
+			catch (Exception ex)
+			{
+				Log.LogWarning("Credits patches failed - mod credits will be missing: " + ex);
 			}
 			while (!ProjectileManager.Instance || !GameInfo.CurCamera)
 			{
