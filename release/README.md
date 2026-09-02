@@ -72,3 +72,9 @@ experience, everyone should use the same config.
 
 **Q: I get a yellow warning when the game starts.**
 A: That's the normal BepInEx console info message. Harmless.
+
+## Credits
+
+**RocketLauncherMod** by [Monstroxx](https://github.com/Monstroxx)
+
+3D assets (rocket launcher model/textures) by [Hans Woofington](https://hans-woofington.itch.io/asimov-3d-guns-and-gun-accessory-pack) — Asimov 3D Guns and Gun Accessory Pack

@@ -71,3 +71,7 @@ This builds the plugin in Release mode, packages
 `RocketLauncherMod.dll` + `mod-assets/` + the `release/` installers
 into a zip, and publishes it as the newest GitHub Release via the
 [GitHub CLI](https://cli.github.com/) (`gh`, must be authenticated).
+
+## Credits
+
+3D assets (rocket launcher model/textures) by [Hans Woofington](https://hans-woofington.itch.io/asimov-3d-guns-and-gun-accessory-pack) — Asimov 3D Guns and Gun Accessory Pack
