@@ -34,7 +34,6 @@ Download the latest release from the
   the install guide, packaged into every release zip
 - `scripts/dev-install.sh` — build-and-install helper for local testing
 - `release.sh` — builds, packages and publishes a new GitHub Release
-- `PLAN.md` — original design/analysis notes from before implementation
 
 ## Building from source
 
