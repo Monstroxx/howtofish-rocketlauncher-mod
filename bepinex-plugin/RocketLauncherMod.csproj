@@ -6,56 +6,62 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <RootNamespace>RocketLauncherMod</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- Point this at your own "How to Fish" install to build from source.
+         Override with -p:GameDir=... or the HOWTOFISH_GAME_DIR env var;
+         the default below only works on the original author's machine. -->
+    <GameDir Condition="'$(GameDir)' == '' And '$(HOWTOFISH_GAME_DIR)' != ''">$(HOWTOFISH_GAME_DIR)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">$(HOME)/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish</GameDir>
+    <ManagedDir>$(GameDir)/How to Fish_Data/Managed</ManagedDir>
+    <BepInExCoreDir>$(GameDir)/BepInEx/core</BepInExCoreDir>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <!-- Gegen die LIVE-DLL bauen, nicht gegen Assembly-CSharp.dll.original: das ist ein
-           Backup aus dem alten DLL-Swap-Weg und bleibt beim Spiel-Update stehen. Dagegen
-           kompiliert waere gegen eine veraltete API gebaut. -->
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/Assembly-CSharp.dll</HintPath>
+      <!-- Build against the live DLL, not Assembly-CSharp.dll.original: that's a
+           leftover backup from the old DLL-swap approach and stays behind on
+           game updates, so building against it means building against a stale API. -->
+      <HintPath>$(ManagedDir)/Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.ParticleSystemModule.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.ParticleSystemModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.AnimationModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.ImageConversionModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(ManagedDir)/UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="FishNet.Runtime">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/How to Fish_Data/Managed/FishNet.Runtime.dll</HintPath>
+      <HintPath>$(ManagedDir)/FishNet.Runtime.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/BepInEx/core/0Harmony.dll</HintPath>
+      <HintPath>$(BepInExCoreDir)/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>/home/kimox/snap/steam/common/.local/share/Steam/steamapps/common/How to Fish/How to Fish/BepInEx/core/BepInEx.dll</HintPath>
+      <HintPath>$(BepInExCoreDir)/BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <Target Name="CopyToDist" AfterTargets="Build">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MSBuildThisFileDirectory)../dist" />
-  </Target>
 </Project>
