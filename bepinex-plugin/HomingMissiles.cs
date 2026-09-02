@@ -5,45 +5,45 @@ using UnityEngine;
 namespace RocketLauncherMod
 {
 	/// <summary>
-	/// Homing-Missiles-Upgrade fuer den Rocket Launcher.
-	/// - Beim Zielen (ADS) lockt das Fadenkreuz das Ziel, das der Kamera am naechsten ist
-	///   (lebende Fische, Moewen/Birds). Die Lock-Box faerbt sich rot -> orange -> gruen.
-	/// - Bei gruenem Lock feuerte Raketen verfolgen das Ziel serverseitig (host).
-	/// - Gekauft per /rocketbuy (Kosten an die Serverkasse, wie Shop-Attachments).
+	/// Homing missiles upgrade for the Rocket Launcher.
+	/// - While aiming (ADS), the crosshair locks onto the target closest to the camera
+	///   (living fish, seagulls/birds). The lock box colors itself red -> orange -> green.
+	/// - With a green lock, fired rockets track the target server-side (host).
+	/// - Purchased via /rocketbuy (cost goes to the server treasury, like shop attachments).
 	/// </summary>
 	public static class HomingMissiles
 	{
 		private const string AttachmentName = "Homing Missiles";
 
-		// Lock-Progress pro Sekunde bei gueltigem Ziel; 0..1, gruen ab 1.
+		// Lock progress per second with a valid target; 0..1, green from 1 upward.
 		private const float LockTimeSeconds = 0.75f;
 
-		// Maximaler Winkel (Grad) zwischen Kamera-Blick und Ziel, damit Lock weitergezaehlt wird.
+		// Maximum angle (degrees) between camera view and target for the lock to keep counting.
 		private const float MaxLockAngle = 14f;
 
-		// Maximaler Abstand (m), ab dem gar nicht mehr gelockt wird.
+		// Maximum distance (m) beyond which locking doesn't happen at all.
 		private const float MaxLockRange = 90f;
 
-		// Max. Richtungs-Aenderung der Rakete pro Sekunde (Grad) - verhindert perfektes "immer trifft".
+		// Max. direction change of the rocket per second (degrees) - prevents a perfect "always hits".
 		private const float MaxTurnDegreesPerSecond = 190f;
 
 		public static ConfigEntry<int> CfgCost;
 
 		public static bool Purchased;
 
-		// Lokal: aktuelles Lock-Ziel + Fortschritt (nur Schuetze, UI).
+		// Local: current lock target + progress (shooter-only, UI).
 		private static Transform _lockTarget;
 
 		private static float _lockProgress;
 
 		private static float _wasAdsTime;
 
-		// Server: fliegende Raketen + ihre Ziele.
+		// Server: flying rockets + their targets.
 		private static readonly List<Projectile> _homingRockets = new List<Projectile>();
 
 		private static readonly List<Creature> _serverTargets = new List<Creature>();
 
-		// UI-Box am Ziel (lokales Objekt, wird per LateUpdate nachgezogen).
+		// UI box on the target (local object, tracked via LateUpdate).
 		private static GameObject _lockBox;
 		private static MeshRenderer _lockBoxRenderer;
 		private static Material _lockBoxMaterial;
@@ -55,19 +55,19 @@ namespace RocketLauncherMod
 		public static void Bind(ConfigFile config)
 		{
 			CfgCost = config.Bind("Homing", "Cost", 5000,
-				"Kaufpreis fuer das Homing-Missiles-Upgrade (/rocketbuy).");
+				"Purchase price for the Homing Missiles upgrade (/rocketbuy).");
 		}
 
 		public static bool IsHomingReady => Purchased && Plugin.RocketTypeReady;
 
-		/// <summary>Aktueller Lock-Fortschritt 0..1 (1 = gruen / festes Schloss).</summary>
+		/// <summary>Current lock progress 0..1 (1 = green / firm lock).</summary>
 		public static float LockProgress => _lockProgress;
 
 		public static Transform LockTarget => _lockTarget;
 
-		/// <summary>Wird beim Spawnen einer Rakete gerufen: Bei festem Lock (gruen) wird sie homing.
-		/// Der Schuetze kennt sein Lock-Ziel lokal; der Host steuert die Rakete dann serverseitig
-		/// (beim Solo-/Host-Spiel beides dieselbe Maschine).</summary>
+		/// <summary>Called when a rocket spawns: with a firm lock (green) it becomes homing.
+		/// The shooter knows their lock target locally; the host then steers the rocket
+		/// server-side (in solo/host play, both are the same machine).</summary>
 		public static void OnProjectileSpawned(Projectile projectile, bool isLocal, Player owner)
 		{
 			if (!Purchased || projectile == null)
@@ -88,7 +88,7 @@ namespace RocketLauncherMod
 				return;
 			}
 			RegisterServerHoming(projectile, targetItem.Creature);
-			Plugin.Log.LogInfo($"Homing-Rakete gestartet -> {targetItem.Creature.GetName()}");
+			Plugin.Log.LogInfo($"Homing rocket launched -> {targetItem.Creature.GetName()}");
 		}
 
 		public static void RegisterServerHoming(Projectile projectile, Creature target)
@@ -104,7 +104,7 @@ namespace RocketLauncherMod
 			}
 		}
 
-		/// <summary>FixUpdate-Postfix: lenkt homing Raketen Richtung Ziel (server + local preview).</summary>
+		/// <summary>FixedUpdate postfix: steers homing rockets toward their target (server + local preview).</summary>
 		public static void SteerProjectiles(ProjectileManager manager)
 		{
 			if (_homingRockets.Count == 0)
@@ -122,7 +122,7 @@ namespace RocketLauncherMod
 					_serverTargets.RemoveAt(i);
 					continue;
 				}
-				// Ziel weg/lokalisiert -> Rakete fliegt weiter, ohne Steuerung.
+				// Target gone/despawned -> rocket keeps flying, without steering.
 				if (!target || target.IsDead || !target.transform)
 				{
 					_homingRockets.RemoveAt(i);
@@ -139,7 +139,7 @@ namespace RocketLauncherMod
 			}
 		}
 
-		/// <summary>Aufgerufen, wenn ein Projektil entfernt wurde (Hit/Fuse) - Eintrag entfernen.</summary>
+		/// <summary>Called when a projectile has been removed (hit/fuse) - remove its entry.</summary>
 		public static void OnProjectileGone(Projectile projectile)
 		{
 			int index = _homingRockets.IndexOf(projectile);
@@ -150,7 +150,7 @@ namespace RocketLauncherMod
 			}
 		}
 
-		/// <summary>Findet das beste Lock-Ziel in Kameranaehe (Fische + Moewen, lebendig).</summary>
+		/// <summary>Finds the best lock target near the camera (fish + seagulls, alive).</summary>
 		private static Creature FindBestTarget()
 		{
 			Player local = Player.LocalPlayer;
@@ -182,12 +182,12 @@ namespace RocketLauncherMod
 					continue;
 				}
 				float angle = Vector3.Angle(camDir, toTarget);
-				// Naeher am Bildschirmzentrum = kleinerer Winkel; das "am naechsten am Fadenkreuz".
+				// Closer to screen center = smaller angle; this is the "closest to the crosshair" check.
 				if (angle > MaxLockAngle)
 				{
 					continue;
 				}
-				// Ziele im Wasser unterhalb der Wasseroberflaeche sind ok (Fische), Moewen fliegen eh offen.
+				// Targets underwater are fine (fish); seagulls fly in the open anyway.
 				float score = angle + dist * 0.05f;
 				if (score < bestScore)
 				{
@@ -198,7 +198,7 @@ namespace RocketLauncherMod
 			return best;
 		}
 
-		/// <summary>Wird pro Frame vom Plugin gerufen (lokal, nur Anzeige + Lock-Zustand).</summary>
+		/// <summary>Called every frame by the plugin (local only, display + lock state).</summary>
 		public static void UpdateLocalLock(bool isAds)
 		{
 			if (!Purchased)
@@ -206,13 +206,13 @@ namespace RocketLauncherMod
 				EnsureLockBoxVisible(false);
 				return;
 			}
-			// ADS verlassen -> Lock resetten. Kurze Nachlaufzeit, damit ein Schuss
-			// mitten im ADS das Lock nicht sofort killt (IsAds kann kurz false sein).
+			// Leaving ADS -> reset the lock. Short grace period so a shot mid-ADS doesn't
+			// instantly kill the lock (IsAds can briefly be false).
 			if (!isAds)
 			{
 				if (_wasAdsTime > 0f && Time.time - _wasAdsTime < 0.25f)
 				{
-					// kurz weiterlaufen lassen (Schuss-Frame)
+					// let it keep running briefly (the shot frame)
 				}
 				else
 				{
@@ -233,10 +233,10 @@ namespace RocketLauncherMod
 			}
 			else if (target != null)
 			{
-				// Neues Ziel -> Lock neu aufbauen, aber nur wenn wir vorher kein festes Lock hatten.
+				// New target -> rebuild the lock, but only if we didn't already have a firm lock.
 				if (_lockProgress >= 1f)
 				{
-					// festes Lock behalten, solange das Ziel noch im Kegel ist.
+					// Keep the firm lock as long as the target is still within the cone.
 					if (IsStillInCone(_lockTarget))
 					{
 						EnsureLockBoxVisible(true);
@@ -250,7 +250,7 @@ namespace RocketLauncherMod
 			}
 			else
 			{
-				// Kein Ziel im Kegel: Lock langsam verfallen lassen.
+				// No target in the cone: let the lock decay slowly.
 				_lockProgress = Mathf.Max(0f, _lockProgress - Time.deltaTime / LockTimeSeconds * 1.5f);
 				if (_lockProgress <= 0f)
 				{
@@ -275,10 +275,10 @@ namespace RocketLauncherMod
 		{
 			if (visible && _lockBox == null)
 			{
-				// Den SHADER pruefen, nicht das Material: new Material(...) liefert nie null,
-				// der alte Fallback konnte also nie greifen - bei fehlendem URP-Unlit gab es
-				// ein Material mit null-Shader (magenta Lock-Box). Zuerst das Material bauen,
-				// damit UpdateLockBox nie eine Box ohne Material vorfindet.
+				// Check the SHADER, not the material: new Material(...) never returns null,
+				// so the old fallback could never trigger - with URP Unlit missing, you got
+				// a material with a null shader (magenta lock box). Build the material first
+				// so UpdateLockBox never finds a box without a material.
 				Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
 				if (shader == null)
 				{
@@ -286,7 +286,7 @@ namespace RocketLauncherMod
 				}
 				if (shader == null)
 				{
-					Plugin.Log.LogWarning("Kein Shader fuer die Lock-Box gefunden - Homing-Lock bleibt unsichtbar.");
+					Plugin.Log.LogWarning("No shader found for the lock box - homing lock stays invisible.");
 					return;
 				}
 				_lockBoxMaterial = new Material(shader);
@@ -313,11 +313,11 @@ namespace RocketLauncherMod
 			Bounds bounds = GetTargetBounds(_lockTarget);
 			Vector3 size = bounds.size;
 			float extent = Mathf.Max(size.x, Mathf.Max(size.y, size.z));
-			// Box etwas groesser als das Ziel, min. 0.8 m.
+			// Box slightly larger than the target, min. 0.8 m.
 			float boxSize = Mathf.Max(0.8f, extent * 1.35f);
 			_lockBox.transform.position = bounds.center;
 			_lockBox.transform.localScale = new Vector3(boxSize, boxSize, boxSize);
-			// Wireframe-Look: nur Kontur - via Farbe + Transparenz einfach gehalten.
+			// Wireframe look: outline only - kept simple via color + transparency.
 			Color color = _lockProgress >= 1f ? ColorGreen
 				: (_lockProgress >= 0.5f ? Color.Lerp(ColorOrange, ColorGreen, (_lockProgress - 0.5f) * 2f)
 					: Color.Lerp(ColorRed, ColorOrange, _lockProgress * 2f));
@@ -346,29 +346,29 @@ namespace RocketLauncherMod
 			return bounds;
 		}
 
-		/// <summary>/rocketbuy - Kauf des Upgrades, Kosten gehen an die Serverkasse.</summary>
+		/// <summary>/rocketbuy - purchase of the upgrade, cost goes to the server treasury.</summary>
 		public static void Buy(Player buyer)
 		{
 			if (Purchased)
 			{
-				ChatManager.ChatMessage("[Rocket] Homing Missiles sind bereits gekauft!");
+				ChatManager.ChatMessage("[Rocket] Homing Missiles are already purchased!");
 				return;
 			}
 			if (CfgCost.Value > 0)
 			{
 				if (!MoneyManager.CanAfford(CfgCost.Value))
 				{
-					ChatManager.ChatMessage($"[Rocket] Nicht genug Geld - Homing Missiles kosten ${CfgCost.Value}");
+					ChatManager.ChatMessage($"[Rocket] Not enough money - Homing Missiles cost ${CfgCost.Value}");
 					return;
 				}
 				MoneyManager.RemoveMoney(CfgCost.Value, buyer);
 			}
 			Purchased = true;
-			ChatManager.ChatMessage($"[Rocket] Homing Missiles gekauft! (${CfgCost.Value}) Zielen (ADS), Ziel im Fadenkreuz halten bis die Box gruen wird, dann schiessen.");
-			Plugin.Log.LogInfo("Homing Missiles gekauft");
+			ChatManager.ChatMessage($"[Rocket] Homing Missiles purchased! (${CfgCost.Value}) Aim (ADS), keep the target in the crosshair until the box turns green, then shoot.");
+			Plugin.Log.LogInfo("Homing Missiles purchased");
 		}
 
-		/// <summary>Nach Save-Load oder neuem Spiel zuruecksetzen.</summary>
+		/// <summary>Reset after a save load or a new game.</summary>
 		public static void Reset()
 		{
 			Purchased = false;

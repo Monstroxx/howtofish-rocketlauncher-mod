@@ -1,83 +1,83 @@
 # How to Fish — Custom Weapon Mod: "Asimov Rocket Launcher"
 
-## Analyse-Ergebnisse
+## Analysis Results
 
-### Spiel
-- **Engine:** Unity **6000.4.4f1** (Unity 6), URP, FishNet (Multiplayer), Steam
-- **Item-Registrierung:** `GameInfo.Awake()` lädt alle Items via `Resources.LoadAll<Item>("Items")` aus `resources.assets` → Name+ID-Dictionary
-- **Waffen-Pipeline:** `Weapon` (Tool→Item) → `WeaponInfo` (byte `ProjectileType` = Index in `ProjectileManager._types[]`) → Projektil-Rendering per GPU-Instancing über `InstanceManager` (Name→Mesh+Material, KEIN GameObject)
-- **Explosionen:** `ExplosionManager.ServerExplode(Item, ExplosionInfo)` — komplettes System vorhanden (Damage-Radius, Knockback, Fische töten, Boat-Force, Screenshake, VFX/Sound)
-- **Cheats:** `/spawn <name>` in Chat — aber `CheatsEnabled` hängt an `SteamManager.IsDev` (hardcoded SteamIDs) → muss im Mod aktiviert werden
-- **Build:** dekompiliertes `Assembly-CSharp.csproj` **baut jetzt mit 0 Errors** gegen die Spiel-DLLs (HintPaths gefixt, `UnityEngine.UIElementsModule` ergänzt). DLL-Swap ist also machbar.
+### Game
+- **Engine:** Unity **6000.4.4f1** (Unity 6), URP, FishNet (multiplayer), Steam
+- **Item registration:** `GameInfo.Awake()` loads all items via `Resources.LoadAll<Item>("Items")` from `resources.assets` → name+ID dictionary
+- **Weapon pipeline:** `Weapon` (Tool→Item) → `WeaponInfo` (byte `ProjectileType` = index in `ProjectileManager._types[]`) → projectile rendering via GPU instancing through `InstanceManager` (name→mesh+material, NO GameObject)
+- **Explosions:** `ExplosionManager.ServerExplode(Item, ExplosionInfo)` — complete system already present (damage radius, knockback, killing fish, boat force, screenshake, VFX/sound)
+- **Cheats:** `/spawn <name>` in chat — but `CheatsEnabled` is tied to `SteamManager.IsDev` (hardcoded Steam IDs) → must be enabled by the mod
+- **Build:** the decompiled `Assembly-CSharp.csproj` **now builds with 0 errors** against the game DLLs (HintPaths fixed, `UnityEngine.UIElementsModule` added). So swapping the DLL is feasible.
 
 ### FBX (Asimov Weapon Pack)
-- **Enthält KEINE echten Animationen** — alle 37 Takes sind 1-Frame-Rest-Posen (Pose-Library). Animationen müssen selbst gebaut werden (aber das Rig macht's einfach)
-- **Rig-Struktur:** nur 3 relevante Bones: `Body` (len 0.71, root), `Trigger` (child von Body), `Rocket` (child von Body, hinten im Rohr)
-- **Mesh-Zustände:** `Rocket` (geladene Rakete sichtbar) + `Rocket Fired` (leere Röhre) — ideal für Fire/Reload-Anims
-- **Extrahiert:** `/tmp/opencode/fbx_out/AsimovRocketLauncher_clean.fbx` (4 MB, nur Rocket-Launcher-Teile)
-- **Materialien:** `GunMetalNewPallete`, `PlasticNewPallete`
-- ⚠️ **Textur fehlt:** `Palette -Sharks.png` ist NICHT in der FBX embedded (nur Pfad-Referenz auf `/run/media/Hans/...`). Ohne die PNG wird's untexturiert/weiß. → Bitte die Palette-PNG aus dem Pack besorgen, sonst ersetzen wir sie durch Flat-Colors.
+- **Contains NO real animations** — all 37 takes are 1-frame rest poses (a pose library). Animations have to be built from scratch (but the rig makes it easy)
+- **Rig structure:** only 3 relevant bones: `Body` (len 0.71, root), `Trigger` (child of Body), `Rocket` (child of Body, at the back of the tube)
+- **Mesh states:** `Rocket` (loaded rocket visible) + `Rocket Fired` (empty tube) — ideal for fire/reload anims
+- **Extracted:** `/tmp/opencode/fbx_out/AsimovRocketLauncher_clean.fbx` (4 MB, rocket launcher parts only)
+- **Materials:** `GunMetalNewPallete`, `PlasticNewPallete`
+- ⚠️ **Missing texture:** `Palette -Sharks.png` is NOT embedded in the FBX (only a path reference to `/run/media/Hans/...`). Without the PNG it'll be untextured/white. → Please get the palette PNG from the pack, otherwise we'll replace it with flat colors.
 
 ---
 
-## Empfohlener Weg: Modifizierte Assembly-CSharp.dll + AssetBundle
+## Recommended Approach: Modified Assembly-CSharp.dll + AssetBundle
 
-(Voll-Rip mit AssetRipper wäre "sauberer", aber selten 1:1 lauffähig. Hybrid-Ansatz ist roboser und schneller.)
+(A full rip with AssetRipper would be "cleaner", but rarely runs 1:1. The hybrid approach is more robust and faster.)
 
-### Schritt 1 — Unity-Editor-Projekt (Unity 6000.4.4f1)
-1. Leeres URP-Projekt anlegen
-2. `AsimovRocketLauncher_clean.fbx` importieren
-3. **Animationen selbst bauen** (Pack hat keine — nur 1-Frame-Rest-Posen). Legacy-Clips mit exakten Namen die `Weapon.cs` erwartet: `Idle`, `Fire`, `FireLast`, `Reload`, `ReloadLast`, `Inspect`. Rig ist minimal (Bones: `Body`, `Trigger`, `Rocket`): `Idle`=Rest-Pose loop, `Fire`=Trigger zurueck + Rocket-Bone scale 0 + Recoil (~10f), `Reload`=Rocket wieder rein (~40f). Export als **Legacy-Animation** (nicht Humanoid), Unity-Import auf "Legacy"
-4. `Palette -Sharks.png` (falls vorhanden) importieren, Materialien auf URP umstellen
-5. **AssetBundle bauen** (StandaloneLinux64) mit:
-   - Launcher-Mesh + Material
-   - Rocket-Mesh + Material (für InstanceManager)
-   - AnimationClips
-   - Optional: eigene Explosion-VFX (sonst nutzen wir die Spiel-eigenen über `ParticleManager`-Namen)
+### Step 1 — Unity Editor Project (Unity 6000.4.4f1)
+1. Create an empty URP project
+2. Import `AsimovRocketLauncher_clean.fbx`
+3. **Build the animations ourselves** (the pack has none — only 1-frame rest poses). Legacy clips with the exact names `Weapon.cs` expects: `Idle`, `Fire`, `FireLast`, `Reload`, `ReloadLast`, `Inspect`. The rig is minimal (bones: `Body`, `Trigger`, `Rocket`): `Idle` = rest pose loop, `Fire` = trigger pulled back + rocket bone scale 0 + recoil (~10f), `Reload` = rocket goes back in (~40f). Export as a **Legacy animation** (not Humanoid), Unity import set to "Legacy"
+4. Import `Palette -Sharks.png` (if available), switch materials to URP
+5. **Build an AssetBundle** (StandaloneLinux64) with:
+   - Launcher mesh + material
+   - Rocket mesh + material (for InstanceManager)
+   - Animation clips
+   - Optional: our own explosion VFX (otherwise we use the game's own via `ParticleManager` names)
 
-### Schritt 2 — Code-Änderungen im dekompilierten Projekt
-Alle Änderungen direkt in Assembly-CSharp (wir besitzen den Code):
+### Step 2 — Code Changes in the Decompiled Project
+All changes go directly into Assembly-CSharp (we own the code):
 
-1. **`RocketLauncherMod.cs` (neu)** — Bootstrap via `[RuntimeInitializeOnLoadMethod]`:
-   - AssetBundle aus `How to Fish_Data/StreamingAssets/mods/` laden
-   - Nach `GameInfo.Awake`: neuen **ProjectileType** an `ProjectileManager._types` anhängen (Index = Länge, z.B. 3) — direkter Feld-Zugriff möglich da gleiche Assembly
-   - Neuen **InstanceType** `"RocketMesh"` in `InstanceManager` registrieren (Mesh+Material aus Bundle, auch ins `_instanceTypes`-Array + Dict, sonst rendert `RenderBatches()` ihn nicht)
-   - Waffen-Prefab: existierendes Waffen-Item aus `GameInfo` klonen (Template), Mesh/Renderer tauschen, WeaponInfo setzen (ProjectileType=neuer Index, Gravity~5 für Bogenschuss, Force), als `"RocketLauncher"` + freie Item-ID (z.B. 200) in `GameInfo` registrieren → `/spawn rocketlauncher` funktioniert dann sofort
-   - `ClientSettings.ToggleCheats(true)` im Bootstrap (umgeht `SteamManager.IsDev`)
-2. **`ProjectileManager.Hit()`** — Erweiterung:
+1. **`RocketLauncherMod.cs` (new)** — bootstrap via `[RuntimeInitializeOnLoadMethod]`:
+   - Load the AssetBundle from `How to Fish_Data/StreamingAssets/mods/`
+   - After `GameInfo.Awake`: append a new **ProjectileType** to `ProjectileManager._types` (index = length, e.g. 3) — direct field access is possible since it's the same assembly
+   - Register a new **InstanceType** `"RocketMesh"` in `InstanceManager` (mesh+material from the bundle, also into the `_instanceTypes` array + dict, otherwise `RenderBatches()` won't render it)
+   - Weapon prefab: clone an existing weapon item from `GameInfo` (template), swap mesh/renderer, set WeaponInfo (ProjectileType=new index, gravity ~5 for an arcing shot, force), register it as `"RocketLauncher"` + a free item ID (e.g. 200) in `GameInfo` → `/spawn rocketlauncher` then works immediately
+   - `ClientSettings.ToggleCheats(true)` in the bootstrap (bypasses `SteamManager.IsDev`)
+2. **`ProjectileManager.Hit()`** — extension:
    ```csharp
    if (projectile.TypeId == RocketLauncherMod.RocketTypeId) {
        ExplosionManager.ServerExplodeAt(hit.point, projectile.Owner, RocketLauncherMod.ExplosionInfo);
-       // kein LandProjectile, kein LandedMesh
+       // no LandProjectile, no LandedMesh
    }
    ```
-3. **`ExplosionManager.cs`** — neue Methode `ServerExplodeAt(Vector3 pos, Player player, ExplosionInfo info)`: Refactor von `ServerExplode` mit `pos` statt `item.transform.position` (Rakete hat kein Item-GameObject). Observer-RPC für VFX/Sound/Screenshake analog `ObserverExplode`.
-4. **`Weapon.cs`** — kein Zwang, aber optional: `_projectileCountPerShot=1`, hoher `_recoilKnockback`, `_noShootingDuringShootAnim=true` per Prefab-Konfig im Bootstrap.
+3. **`ExplosionManager.cs`** — new method `ServerExplodeAt(Vector3 pos, Player player, ExplosionInfo info)`: refactor of `ServerExplode` using `pos` instead of `item.transform.position` (the rocket has no item GameObject). Observer RPC for VFX/sound/screenshake analogous to `ObserverExplode`.
+4. **`Weapon.cs`** — not required, but optionally: `_projectileCountPerShot=1`, high `_recoilKnockback`, `_noShootingDuringShootAnim=true` via prefab config in the bootstrap.
 
-### Schritt 3 — ExplosionInfo (im Bootstrap konfigurierbar)
+### Step 3 — ExplosionInfo (configurable in the bootstrap)
 ```csharp
 Damage: 150 | DamageRadius: 6 | ForceRadius: 4
 ItemForce: 1500 | BoatForce: 1500 | PlayerForce: 60
-ExplosionParticleName: <vorhandener ParticleManager-Effekt>  // z.B. Dynamite-Explosion
-ExplosionSoundName: <vorhandener Sound>                      // z.B. "Explosion_V"
+ExplosionParticleName: <existing ParticleManager effect>  // e.g. dynamite explosion
+ExplosionSoundName: <existing sound>                      // e.g. "Explosion_V"
 ```
 
-### Schritt 4 — Deployment
-1. `dotnet build` → neue `Assembly-CSharp.dll` → nach `Managed/` kopieren (Backup original!)
-2. AssetBundle nach `StreamingAssets/mods/`
-3. Tests: Solo-Host `/spawn rocketlauncher` → Schuss → Explosion tötet Fische im Radius, Boot wird weggeschubst, Multiplayer: Remote-Clients sehen Projektil (WeaponInfo ist nur byte-Index — mod muss auf allen Clients installiert sein)
+### Step 4 — Deployment
+1. `dotnet build` → new `Assembly-CSharp.dll` → copy into `Managed/` (back up the original!)
+2. AssetBundle into `StreamingAssets/mods/`
+3. Tests: solo host `/spawn rocketlauncher` → shoot → explosion kills fish within the radius, boat gets pushed away, multiplayer: remote clients see the projectile (WeaponInfo is just a byte index — the mod must be installed on all clients)
 
-### Raketen-Verhalten (Werte in WeaponInfo/Weapon)
-- `_projSpeed`: ~35 (langsam genug zum Zuschauen)
-- `ProjectileGravity`: ~4–6 (leichter Bogenschuss)
-- `_spread`: 0, `_fullAuto`: false, `_recoilKnockback`: hoch
+### Rocket Behavior (values in WeaponInfo/Weapon)
+- `_projSpeed`: ~35 (slow enough to watch)
+- `ProjectileGravity`: ~4–6 (slight arc)
+- `_spread`: 0, `_fullAuto`: false, `_recoilKnockback`: high
 - `ProjectileType.WidthRadius`: 0.15, `MeshInstance`: "RocketMesh", `MeshScale`: (0.15, 0.15, 0.4)
-- Trail: MVP ohne; später eigenes Partikel-System oder bestehender "Smoke"-Effekt
+- Trail: none for MVP; later a custom particle system or the existing "Smoke" effect
 
 ---
 
-## Offene Punkte / Entscheidungen
-1. **Textur:** `Palette -Sharks.png` besorgen? (sonst Flat-Colors)
-2. **Animation-Takes:** die 40 `CubeAction.NNN` in Blender identifizieren (Fire/Reload/Idle)? — oder für MVP einfache selbstgebaute Clips (Idle=loop, Fire=Recoil-Pose, Reload=Rocket-Insert)
-3. **Sounds:** Spiel-Sounds wiederverwenden (Dynamite-Zündsound, Explosions-Sound) — keine neuen Assets nötig
-4. **Shop-Integration:** MVP nur `/spawn`; kaufbar im Shop wäre Schritt 5 (Purchasable-System)
+## Open Points / Decisions
+1. **Texture:** get `Palette -Sharks.png`? (otherwise flat colors)
+2. **Animation takes:** identify the 40 `CubeAction.NNN` takes in Blender (fire/reload/idle)? — or for MVP just build simple clips ourselves (idle=loop, fire=recoil pose, reload=rocket insert)
+3. **Sounds:** reuse the game's sounds (dynamite ignition sound, explosion sound) — no new assets needed
+4. **Shop integration:** MVP is `/spawn` only; purchasable in the shop would be step 5 (purchasable system)

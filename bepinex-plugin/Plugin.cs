@@ -57,47 +57,47 @@ namespace RocketLauncherMod
 		{
 			Log = Logger;
 			CfgEnableCheats = Config.Bind("General", "EnableGameCheats", false,
-				"Aktiviert die eingebauten Dev-Cheats des Spiels (/spawn, /money ...). ACHTUNG: schaltet auch die Cheat-Hotkeys frei - T = Zeitlupe (1x/0.1x/0.01x), G = Schaden, H = Heilen, M/N = Geld, O = Insel, U = UI. Der Rocket Launcher braucht das NICHT (/rocket funktioniert immer).");
+				"Enables the game's built-in dev cheats (/spawn, /money ...). WARNING: this also unlocks the cheat hotkeys - T = slow motion (1x/0.1x/0.01x), G = damage, H = heal, M/N = money, O = island, U = UI. The Rocket Launcher does NOT need this (/rocket always works).");
 			CfgKeepTimeScaleNormal = Config.Bind("General", "KeepTimeScaleNormal", true,
-				"Setzt Time.timeScale automatisch auf 1 zurueck, falls etwas das Spiel in Zeitlupe schaltet.");
-			// Absolute Werte statt Faktoren: Gewehrkugeln fliegen in diesem Spiel 900 m/s.
-			// "Etwas langsamer" waere immer noch unsichtbar - eine sichtbare Rakete braucht 40-90 m/s.
+				"Automatically resets Time.timeScale to 1 if something switches the game into slow motion.");
+			// Absolute values instead of factors: rifle bullets fly at 900 m/s in this game.
+			// "A bit slower" would still be invisible - a visible rocket needs 40-90 m/s.
 			CfgLaunchSpeed = Config.Bind("Rocket", "LaunchSpeed", 40f,
-				"Startgeschwindigkeit der Rakete in m/s beim Verlassen des Rohres. (Sturmgewehr-Kugel zum Vergleich: 900 m/s)");
+				"Launch speed of the rocket in m/s when it leaves the tube. (Assault rifle bullet for comparison: 900 m/s)");
 			CfgMaxSpeed = Config.Bind("Rocket", "MaxSpeed", 80f,
-				"Endgeschwindigkeit in m/s, auf die der Raketenmotor beschleunigt.");
+				"Top speed in m/s that the rocket motor accelerates to.");
 			CfgAcceleration = Config.Bind("Rocket", "Acceleration", 30f,
-				"Schub des Raketenmotors in m/s^2 bis MaxSpeed. 0 = konstante Geschwindigkeit.");
+				"Thrust of the rocket motor in m/s^2 up to MaxSpeed. 0 = constant speed.");
 			CfgGravity = Config.Bind("Rocket", "Gravity", 1.5f,
-				"Schwerkraft auf die Rakete in m/s^2. 0 = schnurgerade, 1.5 = leichtes Absacken auf Distanz.");
+				"Gravity applied to the rocket in m/s^2. 0 = perfectly straight, 1.5 = slight drop over distance.");
 			CfgFuseSeconds = Config.Bind("Rocket", "FuseSeconds", 4f,
-				"Nach dieser Flugzeit detoniert die Rakete auch ohne Treffer. Achtung: Geschosse werden 400 m vom Schuetzen entfernt zwangsentfernt - LaunchSpeed x FuseSeconds sollte darunter bleiben.");
+				"After this flight time, the rocket detonates even without a hit. Note: projectiles are forcibly removed 400 m from the shooter - LaunchSpeed x FuseSeconds should stay below that.");
 			CfgTimeBetweenShots = Config.Bind("Rocket", "TimeBetweenShots", 1.2f,
-				"Feuerrate: Sekunden zwischen zwei Schuessen.");
+				"Fire rate: seconds between two shots.");
 			CfgMeshScale = Config.Bind("Rocket", "MeshScale", 2f,
-				"Groesse der fliegenden Rakete. 1 = rocket.obj in Originalgroesse (ca. 30 cm lang).");
+				"Size of the flying rocket. 1 = rocket.obj at its original size (about 30 cm long).");
 			CfgAmmoPerMag = Config.Bind("Rocket", "AmmoPerMag", 1,
-				"Schuss pro Magazin. 0 = unendlich Munition (kein Nachladen noetig).");
+				"Shots per magazine. 0 = infinite ammo (no reload needed).");
 
-			// Recoil: ScreenRecoil = Kamera-Kick (Grad nach oben), ModelRecoil = Waffenmodell-Weg.
-			// Defaults deutlich ueber Sturmgewehr-Niveau - ein Rueckstoss-Rohr soll spuerbar reinstossen.
+			// Recoil: ScreenRecoil = camera kick (degrees upward), ModelRecoil = weapon model travel.
+			// Defaults are well above assault-rifle level - a recoil tube should punch back noticeably.
 			CfgScreenRecoil = Config.Bind("Recoil", "ScreenRecoil", 9f,
-				"Kamera-Rueckstoss pro Schuss (Grad). Sturmgewehr liegt bei ca. 1.5.");
+				"Camera recoil per shot (degrees). Assault rifle is around 1.5.");
 			CfgModelRecoil = Config.Bind("Recoil", "ModelRecoil", 4f,
-				"Faktor fuer den Rueckstoss des Waffenmodells (ToolMovement.Recoil).");
+				"Factor for the weapon model's recoil (ToolMovement.Recoil).");
 			CfgKnockback = Config.Bind("Recoil", "Knockback", 25,
-				"Spieler-Knockback nach hinten pro Schuss (m/s auf den Rigidbody). Sturmgewehr: ~2.");
+				"Player knockback backwards per shot (m/s applied to the Rigidbody). Assault rifle: ~2.");
 			CfgReloadSpeed = Config.Bind("Rocket", "ReloadSpeed", 2f,
-				"Geschwindigkeit der Reload-Animation (2 = doppelte Geschwindigkeit, also halbe Reload-Zeit).");
+				"Speed of the reload animation (2 = double speed, i.e. half the reload time).");
 
-			// Von Hand im Spiel justiert bis die Launcher-Spitze in der vorderen Hand lag
-			// (kalibriert gegen die Ruhepose-Matrix in CalculateAnchor/Configure).
+			// Manually adjusted in-game until the launcher tip sat in the front hand
+			// (calibrated against the rest-pose matrix in CalculateAnchor/Configure).
 			CfgModelPos = Config.Bind("Model", "Position", new Vector3(306.154f, 9.013f, 10.704f),
-				"Verschiebung des Launcher-Modells in der Hand (x=rechts, y=hoch, z=vorne), in Metern. Live aenderbar mit /rocketmodel pos X Y Z.");
+				"Offset of the launcher model in the hand (x=right, y=up, z=forward), in meters. Changeable live with /rocketmodel pos X Y Z.");
 			CfgModelRot = Config.Bind("Model", "Rotation", new Vector3(0f, 0f, 0f),
-				"Zusaetzliche Drehung des Launcher-Modells in Grad. Live aenderbar mit /rocketmodel rot X Y Z.");
+				"Additional rotation of the launcher model in degrees. Changeable live with /rocketmodel rot X Y Z.");
 			CfgModelScale = Config.Bind("Model", "Scale", 1.5f,
-				"Groesse des Launcher-Modells in der Hand. Live aenderbar mit /rocketmodel scale N.");
+				"Size of the launcher model in the hand. Changeable live with /rocketmodel scale N.");
 
 			HomingMissiles.Bind(Config);
 		}
@@ -106,7 +106,7 @@ namespace RocketLauncherMod
 		{
 			if (CfgKeepTimeScaleNormal != null && CfgKeepTimeScaleNormal.Value && Time.timeScale != 1f)
 			{
-				Log.LogWarning($"Time.timeScale war {Time.timeScale} - wird auf 1 zurueckgesetzt (Zeitlupen-Cheat?)");
+				Log.LogWarning($"Time.timeScale was {Time.timeScale} - resetting to 1 (slow-motion cheat?)");
 				Time.timeScale = 1f;
 			}
 			EnsureInstanceRegistered();
@@ -116,7 +116,7 @@ namespace RocketLauncherMod
 
 		private static void UpdateHomingLock()
 		{
-			// Reset bei Szenenwechsel/Spiel-Ende: Kein LocalPlayer mehr = Session zu Ende.
+			// Reset on scene change/game end: no LocalPlayer left means the session has ended.
 			if (Player.LocalPlayer == null && HomingMissiles.Purchased)
 			{
 				HomingMissiles.Reset();
@@ -140,8 +140,8 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// InstanceManager.Awake() baut sein Dictionary bei jedem Szenenwechsel neu aus _instanceTypes auf.
-		/// Ohne erneute Registrierung waere der Raketen-Mesh-Typ danach weg (und ReplaceBatches wuerde werfen).
+		/// InstanceManager.Awake() rebuilds its dictionary from _instanceTypes on every scene change.
+		/// Without re-registering, the rocket mesh type would be gone afterwards (and ReplaceBatches would throw).
 		/// </summary>
 		public static bool EnsureInstanceRegistered()
 		{
@@ -159,7 +159,7 @@ namespace RocketLauncherMod
 				return true;
 			}
 			AddInstanceType(instanceManager, _rocketMesh, _rocketMaterial);
-			Log.LogInfo("Raketen-Mesh neu registriert (Szenenwechsel)");
+			Log.LogInfo("Rocket mesh re-registered (scene change)");
 			return true;
 		}
 
@@ -167,7 +167,7 @@ namespace RocketLauncherMod
 
 		private static InstanceManager GetInstanceManager()
 		{
-			// Beim Szenenwechsel wird das alte Objekt zerstoert - Unity meldet es dann als == null.
+			// The old object is destroyed on scene change - Unity then reports it as == null.
 			if (_instanceManager == null)
 			{
 				_instanceManager = UnityEngine.Object.FindObjectOfType<InstanceManager>();
@@ -177,7 +177,7 @@ namespace RocketLauncherMod
 
 		private static readonly FieldInfo _instanceTypeDicField = AccessTools.Field(typeof(InstanceManager), "_instanceTypeDic");
 
-		/// <summary>Eintrag aus dem privaten statischen _instanceTypeDic, oder null.</summary>
+		/// <summary>Entry from the private static _instanceTypeDic, or null.</summary>
 		private static object GetRegisteredInstance(string name)
 		{
 			IDictionary dic = (IDictionary)_instanceTypeDicField.GetValue(null);
@@ -213,7 +213,7 @@ namespace RocketLauncherMod
 			}
 			catch (Exception ex)
 			{
-				Log.LogError("Harmony-Patches fehlgeschlagen: " + ex);
+				Log.LogError("Harmony patches failed: " + ex);
 				yield break;
 			}
 			while (!ProjectileManager.Instance || !GameInfo.CurCamera)
@@ -305,8 +305,8 @@ namespace RocketLauncherMod
 
 		private void RegisterRocketInstance()
 		{
-			// rotateX=0: die lange Achse der OBJ liegt auf +Z - genau die Achse, die
-			// MatrixFromProjectile per LookRotation in Flugrichtung dreht.
+			// rotateX=0: the long axis of the OBJ sits on +Z - exactly the axis that
+			// MatrixFromProjectile rotates into the flight direction via LookRotation.
 			_rocketMesh = ObjLoader.LoadMesh(Path.Combine(AssetDir, "rocket.obj"), 0.1f, 0f);
 			if (_rocketMesh == null)
 			{
@@ -318,12 +318,12 @@ namespace RocketLauncherMod
 			{
 				throw new Exception("InstanceManager not found in scene");
 			}
-			// Der Instanz-Typ bleibt nur als Platzhalter registriert, damit Vanilla-Code nicht ins Leere greift.
-			// Gezeichnet wird die Rakete von RocketVisuals als echtes GameObject - GPU-Instancing mit dem
-			// Geschoss-Material des Spiels hat nichts sichtbar gemacht (Kugeln fliegen 900 m/s, da faellt es nicht auf).
+			// The instance type stays registered only as a placeholder so vanilla code doesn't reach into nothing.
+			// The rocket is actually drawn by RocketVisuals as a real GameObject - GPU instancing with the
+			// game's projectile material didn't make anything visible (bullets fly at 900 m/s, so it doesn't stand out there).
 			AddInstanceType(instanceManager, _rocketMesh, _rocketMaterial);
 			RocketVisuals.Setup(_rocketMesh, _rocketMaterial);
-			Log.LogInfo($"Rocket-Mesh geladen (verts: {_rocketMesh.vertexCount}, bounds: {_rocketMesh.bounds.size}, shader: {_rocketMaterial.shader.name})");
+			Log.LogInfo($"Rocket mesh loaded (verts: {_rocketMesh.vertexCount}, bounds: {_rocketMesh.bounds.size}, shader: {_rocketMaterial.shader.name})");
 		}
 
 
@@ -354,32 +354,32 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Eigene FishNet-Prefab-Collection fuer Mod-Items. Muss != 0 sein (0 ist die im
-		/// NetworkManager eingebackene Vanilla-Liste) und auf Host wie Client identisch.
-		/// Eine eigene Collection ist der Vanilla-Liste vorzuziehen: dort waere die PrefabId
-		/// der aktuelle Listen-Index und damit davon abhaengig, dass beide Seiten exakt
-		/// gleich viele Prefabs geladen haben. Hier ist sie immer 0.
+		/// Dedicated FishNet prefab collection for mod items. Must be != 0 (0 is the vanilla
+		/// list baked into the NetworkManager) and identical on host and client.
+		/// A dedicated collection is preferable to the vanilla list: there, the PrefabId
+		/// would be the current list index and thus depend on both sides having loaded
+		/// exactly the same number of prefabs. Here it's always 0.
 		/// </summary>
 		public const ushort NetworkCollectionId = 20200;
 
 		private static NetworkManager _registeredWith;
 
 		/// <summary>
-		/// Ohne das hier ist der Launcher nicht multiplayer-tauglich: Das Template ist ein
-		/// Laufzeit-Klon des Sturmgewehr-Prefabs und traegt dessen serialisierte
-		/// NetworkObject.PrefabId weiter. FishNet schreibt beim Spawn nur diese ID ins Paket
-		/// (ManagedObjects.WriteSpawn) und der Client schlaegt sie in seiner Prefab-Liste nach
-		/// (ClientObjects.GetInstantiatedNetworkObject) - er instanziiert also das VANILLA-
-		/// Sturmgewehr. ID 200, Modell, Waffenwerte und ProjectileType leben nur auf dem Klon
-		/// der Maschine, die ihn gebaut hat.
+		/// Without this, the launcher is not multiplayer-capable: the template is a
+		/// runtime clone of the assault rifle prefab and carries over its serialized
+		/// NetworkObject.PrefabId. FishNet only writes this ID into the packet on spawn
+		/// (ManagedObjects.WriteSpawn), and the client looks it up in its own prefab list
+		/// (ClientObjects.GetInstantiatedNetworkObject) - so it instantiates the VANILLA
+		/// assault rifle. ID 200, model, weapon stats and ProjectileType only live on the
+		/// clone belonging to the machine that built it.
 		///
-		/// AddObject setzt via InitializePrefabRange PrefabId und SpawnableCollectionId auf
-		/// dem Template; beide werden im Spawn-Paket uebertragen (WriteSpawnedNetworkObject
-		/// schreibt die CollectionId). Ein Client mit Mod hat dieselbe Collection registriert
-		/// und instanziiert damit sein eigenes Launcher-Template.
+		/// AddObject sets PrefabId and SpawnableCollectionId on the template via
+		/// InitializePrefabRange; both are transmitted in the spawn packet
+		/// (WriteSpawnedNetworkObject writes the CollectionId). A client with the mod has
+		/// the same collection registered and thus instantiates its own launcher template.
 		///
-		/// Idempotent: checkForDuplicates verhindert Doppel-Eintraege, deshalb kann das aus
-		/// Update() gegen einen NetworkManager-Wechsel beim Szenenwechsel laufen.
+		/// Idempotent: checkForDuplicates prevents duplicate entries, so this can run from
+		/// Update() against a NetworkManager change on scene switch.
 		/// </summary>
 		public static bool EnsureNetworkPrefabRegistered()
 		{
@@ -397,7 +397,7 @@ namespace RocketLauncherMod
 			{
 				return false;
 			}
-			// Registrierung gilt, solange derselbe NetworkManager die Collection noch fuehrt.
+			// Registration remains valid as long as the same NetworkManager still owns the collection.
 			if (_registeredWith == manager
 				&& nob.SpawnableCollectionId == NetworkCollectionId
 				&& nob.PrefabId != ushort.MaxValue
@@ -408,16 +408,16 @@ namespace RocketLauncherMod
 			PrefabObjects prefabs = manager.GetPrefabObjects<SinglePrefabObjects>(NetworkCollectionId, createIfMissing: true);
 			if (prefabs == null)
 			{
-				Log.LogError($"FishNet-Collection {NetworkCollectionId} konnte nicht angelegt werden - Launcher bleibt Singleplayer-only.");
+				Log.LogError($"FishNet collection {NetworkCollectionId} could not be created - launcher stays singleplayer-only.");
 				return false;
 			}
-			// Laufzeit-ScriptableObject: ohne dieses Flag kann Resources.UnloadUnusedAssets
-			// die Collection beim Szenenwechsel wegraeumen, obwohl der NetworkManager sie
-			// in _runtimeSpawnablePrefabs noch referenziert.
+			// Runtime ScriptableObject: without this flag, Resources.UnloadUnusedAssets can
+			// clean up the collection on scene change even though the NetworkManager still
+			// references it in _runtimeSpawnablePrefabs.
 			prefabs.hideFlags |= HideFlags.DontUnloadUnusedAsset;
 			prefabs.AddObject(nob, checkForDuplicates: true);
 			_registeredWith = manager;
-			Log.LogInfo($"Netzwerk-Prefab registriert: CollectionId {nob.SpawnableCollectionId}, PrefabId {nob.PrefabId} (vorher Sturmgewehr-PrefabId - deshalb kam beim Mitspieler ein Sturmgewehr an)");
+			Log.LogInfo($"Network prefab registered: CollectionId {nob.SpawnableCollectionId}, PrefabId {nob.PrefabId} (previously the assault rifle's PrefabId - which is why a fellow player saw an assault rifle)");
 			return true;
 		}
 
@@ -436,21 +436,21 @@ namespace RocketLauncherMod
 			SetField(weapon, "_recoilKnockback", CfgKnockback.Value);
 			SetField(weapon, "_projectileCountPerShot", 1);
 			SetField(weapon, "_noShootingDuringShootAnim", true);
-			// ADS frei geben - noetig fuer das Homing-Lock (Lock-Box erscheint beim Zielen).
+			// Enable ADS - needed for the homing lock (lock box appears while aiming).
 			SetField(weapon, "_canAds", true);
 			float bulletSpeed = (float)AccessTools.Field(typeof(Weapon), "_projSpeed").GetValue(weapon);
 			float launchSpeed = Mathf.Max(1f, CfgLaunchSpeed.Value);
 			MaxRocketSpeed = Mathf.Max(launchSpeed, CfgMaxSpeed.Value);
 			SetField(weapon, "_projSpeed", launchSpeed);
-			Log.LogInfo($"Rocket: start {launchSpeed:0.#} m/s -> max {MaxRocketSpeed:0.#} m/s (Sturmgewehr-Kugel: {bulletSpeed:0.#} m/s), schub {CfgAcceleration.Value}, gravity {CfgGravity.Value}, fuse {CfgFuseSeconds.Value}s, Flugweite ca. {Mathf.Min(launchSpeed * CfgFuseSeconds.Value * 1.6f, 400f):0}m");
+			Log.LogInfo($"Rocket: start {launchSpeed:0.#} m/s -> max {MaxRocketSpeed:0.#} m/s (assault rifle bullet: {bulletSpeed:0.#} m/s), thrust {CfgAcceleration.Value}, gravity {CfgGravity.Value}, fuse {CfgFuseSeconds.Value}s, range approx. {Mathf.Min(launchSpeed * CfgFuseSeconds.Value * 1.6f, 400f):0}m");
 			Attachments component = weapon.GetComponent<Attachments>();
 			ApplyAmmo(component, weapon);
 			ApplyRecoil(weapon);
 		}
 
-		/// <summary>AmmoPerMag anwenden. 0 = unendlich: intern wird ein großes Magazin (999)
-		/// gesetzt, denn AmmoPerMag=0 selbst waere eine Sackgasse (Ammo=0 => Shoot bricht ab,
-		/// Reload fuellt auf 0). Zusammen mit dem Instant-Reload-Postfix ergibt das Dauer-Feuer.</summary>
+		/// <summary>Apply AmmoPerMag. 0 = infinite: internally a large magazine (999) is
+		/// set, because AmmoPerMag=0 itself would be a dead end (Ammo=0 => Shoot aborts,
+		/// Reload refills to 0). Combined with the instant-reload postfix, this results in continuous fire.</summary>
 		public const int InfiniteAmmoInternal = 999;
 
 		public static void ApplyAmmo(Attachments attachments, Weapon weapon)
@@ -470,10 +470,10 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Rueckstoss: ScreenRecoil/ModelRecoil skalieren die BarrelAttachment-Werte des
-		/// Sturmgewehrs. Default 1.0 ist Vanille-Gewehr - hoeher = harter Kick.
-		/// Angewendet auf ALLE Barrels der Waffe, denn Attachments greift ueber den
-		/// SyncVar-Index _syncedBarrelAttachment zu - welcher Barrel aktiv ist, kann wechseln.
+		/// Recoil: ScreenRecoil/ModelRecoil scale the assault rifle's BarrelAttachment
+		/// values. Default 1.0 is the vanilla rifle - higher = harder kick.
+		/// Applied to ALL barrels of the weapon, because Attachments accesses them via the
+		/// SyncVar index _syncedBarrelAttachment - which barrel is active can change.
 		/// </summary>
 		public static void ApplyRecoil(Weapon weapon)
 		{
@@ -486,7 +486,7 @@ namespace RocketLauncherMod
 			{
 				return;
 			}
-			// _barrelAttachments ist eine List<BarrelAttachment>, kein einzelnes Attachment.
+			// _barrelAttachments is a List<BarrelAttachment>, not a single attachment.
 			List<BarrelAttachment> barrels = AccessTools.Field(typeof(Attachments), "_barrelAttachments").GetValue(attachments) as List<BarrelAttachment>;
 			if (barrels == null || barrels.Count == 0)
 			{
@@ -506,11 +506,11 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Die Vanilla-Werte genau einmal sichern - beim allerersten Aufruf, der immer auf dem
-		/// frisch geklonten Template laeuft (ConfigureWeapon in BuildWeapon). Pro Barrel-INDEX,
-		/// nicht pro Instanz: jeder gespawnte Launcher klont die bereits multiplizierten Werte
-		/// des Templates. Wuerden wir die als Ausgangswert nehmen, potenzierte sich der
-		/// Rueckstoss mit jedem /rocketcfg recoil.
+		/// Capture the vanilla values exactly once - on the very first call, which always
+		/// runs on the freshly cloned template (ConfigureWeapon in BuildWeapon). Per barrel
+		/// INDEX, not per instance: every spawned launcher clones the template's already-
+		/// multiplied values. If we took those as the starting value, recoil would compound
+		/// with every /rocketcfg recoil.
 		/// </summary>
 		private static void CaptureVanillaRecoil(List<BarrelAttachment> barrels)
 		{
@@ -529,14 +529,14 @@ namespace RocketLauncherMod
 				_vanillaScreenRecoil[i] = barrels[i].ScreenRecoilAmount;
 				_vanillaWeaponRecoilMulti[i] = barrels[i].WeaponRecoilMulti;
 			}
-			Log.LogInfo($"Vanilla-Rueckstoss gesichert ({barrels.Count} Barrel(s)): screen {_vanillaScreenRecoil[0]}, modelMulti {_vanillaWeaponRecoilMulti[0]}");
+			Log.LogInfo($"Vanilla recoil captured ({barrels.Count} barrel(s)): screen {_vanillaScreenRecoil[0]}, modelMulti {_vanillaWeaponRecoilMulti[0]}");
 		}
 
 		private static Vector2[] _vanillaScreenRecoil;
 		private static float[] _vanillaWeaponRecoilMulti;
 
-		/// <summary>Reload-Animationsgeschwindigkeit setzen (Legacy-Animation, per AnimationState.speed).
-		/// ReloadSpeed 0 = Instant-Reload: Nach jedem Schuss ist das Magazin sofort wieder voll.</summary>
+		/// <summary>Set the reload animation speed (legacy animation, via AnimationState.speed).
+		/// ReloadSpeed 0 = instant reload: after every shot, the magazine is immediately full again.</summary>
 		public static void ApplyReloadSpeed(Weapon weapon)
 		{
 			if (CfgReloadSpeed.Value <= 0f)
@@ -560,8 +560,8 @@ namespace RocketLauncherMod
 
 		private void SwapModel(Weapon weapon)
 		{
-			// rotateX=0: die lange Achse der OBJ bleibt auf +Z - die Blickrichtung der Waffe in Unity.
-			// Mit den alten 270 Grad stand der 65 cm lange Launcher senkrecht vor der Kamera.
+			// rotateX=0: the long axis of the OBJ stays on +Z - the weapon's forward direction in Unity.
+			// With the old 270 degrees, the 65 cm long launcher stood vertically in front of the camera.
 			LauncherMesh = ObjLoader.LoadMesh(Path.Combine(AssetDir, "rocketlauncher_body.obj"), 0.1f, 0f);
 			if (LauncherMesh == null)
 			{
@@ -577,7 +577,7 @@ namespace RocketLauncherMod
 				{
 					continue;
 				}
-				// Groesster echter Mesh-Renderer = das Sturmgewehr selbst: unsere Positions-Referenz.
+				// Largest real mesh renderer = the assault rifle itself: our position reference.
 				Mesh refMesh = (renderer as SkinnedMeshRenderer)?.sharedMesh;
 				if (refMesh == null && renderer.TryGetComponent(out MeshFilter filter))
 				{
@@ -596,24 +596,24 @@ namespace RocketLauncherMod
 				renderer.enabled = false;
 			}
 			GameObject modelObject = new GameObject(ModelObjectName);
-			// Modell bleibt Kind der Waffenwurzel: damit ist es in der Ego-Ansicht sichtbar
-			// und existiert auch am gedroppten Item (die Rifle-Rig-Hierarchie wird beim
-			// Droppen/deaktiviert - ein Modell darunter wuerde verschwinden).
+			// The model stays a child of the weapon root: this keeps it visible in first-person view
+			// and also present on the dropped item (the rifle rig hierarchy gets deactivated
+			// on drop - a model underneath it would disappear).
 			modelObject.transform.SetParent(weapon.transform, worldPositionStays: false);
 			modelObject.AddComponent<MeshFilter>().sharedMesh = LauncherMesh;
 			modelObject.AddComponent<MeshRenderer>().sharedMaterial = material;
 			ModelTransform = modelObject.transform;
-			// LauncherGlue klebt das Modell an Item._handModelRight - das animierte IK-Ziel der
-			// rechten Hand (PlayerHands.SyncHiddenHandsToAnimatedTool setzt die Hand-Bones
-			// genau dorthin). Dieses Transform ist ein normales Child des Items, wird von der
-			// kompletten Bewegungskette bewegt (Sway/Bob/Recoil/ADS + Feuer-/Reload-Rig) und
-			// hat keine SkinnedMesh-Bindpose-Skalierung. Bones, Renderer-Transform und
-			// SwayTransform haben sich alle als Anker unbrauchbar erwiesen.
+			// LauncherGlue glues the model to Item._handModelRight - the right hand's animated
+			// IK target (PlayerHands.SyncHiddenHandsToAnimatedTool sets the hand bones
+			// exactly there). This transform is a normal child of the item, is moved by the
+			// entire movement chain (sway/bob/recoil/ADS + firing/reload rig), and
+			// has no SkinnedMesh bindpose scaling. Bones, renderer transform and
+			// sway transform all proved unusable as anchors.
 			modelObject.AddComponent<LauncherGlue>();
 			Transform handAnchor = (Transform)AccessTools.Field(typeof(Item), "_handModelRight").GetValue(weapon.GetComponent<Item>());
 			CalculateAnchor(weapon.transform, handAnchor);
 			ApplyModelTransform();
-			Log.LogInfo($"Weapon model swapped: launcher mesh ({LauncherMesh.vertexCount} verts, bounds {LauncherMesh.bounds.size}), Referenz-Renderer: {(ReferenceRenderer != null ? ReferenceRenderer.gameObject.name : "keiner")}");
+			Log.LogInfo($"Weapon model swapped: launcher mesh ({LauncherMesh.vertexCount} verts, bounds {LauncherMesh.bounds.size}), reference renderer: {(ReferenceRenderer != null ? ReferenceRenderer.gameObject.name : "none")}");
 		}
 
 		public const string ModelObjectName = "ModModel";
@@ -623,12 +623,12 @@ namespace RocketLauncherMod
 		public static Renderer ReferenceRenderer;
 		public static Bounds ReferenceBounds;
 
-		/// <summary>Position des Original-Gewehrmittelpunkts im lokalen Raum der Waffe.</summary>
+		/// <summary>Position of the original rifle's center in the weapon's local space.</summary>
 		private static Vector3 _anchorLocal;
 
-		/// <summary>Abbildung lokaler Waffenwurzel-Raum -> Hand-Anker-Raum, gemessen in der
-		/// Ruhepose beim Bau des Templates. Gilt fuer alle Exemplare, weil Spawn-Kopien
-		/// dieselbe Ausgangshierarchie besitzen.</summary>
+		/// <summary>Mapping from local weapon-root space to hand-anchor space, measured in the
+		/// rest pose while building the template. Applies to all instances, because spawned
+		/// copies share the same starting hierarchy.</summary>
 		private static Matrix4x4 _rootToAnchorRest = Matrix4x4.identity;
 
 		private static void CalculateAnchor(Transform weaponRoot, Transform handAnchor)
@@ -643,9 +643,9 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Setzt das Launcher-Modell dorthin, wo vorher das Sturmgewehr sass, plus Feinjustierung
-		/// aus der Config. Betrifft ALLE Exemplare - das Template und jeden gespawnten Launcher,
-		/// denn beim Spawnen wird das Modell mitkopiert und lebt danach unabhaengig weiter.
+		/// Places the launcher model where the assault rifle used to sit, plus fine-tuning
+		/// from the config. Affects ALL instances - the template and every spawned launcher,
+		/// because the model is copied along on spawn and then lives on independently.
 		/// </summary>
 		public static void ApplyModelTransform()
 		{
@@ -667,11 +667,11 @@ namespace RocketLauncherMod
 			}
 			if (count > 0)
 			{
-				Log.LogInfo($"Launcher-Modell aktualisiert ({count} Exemplare): pos {position}, scale {scale}");
+				Log.LogInfo($"Launcher model updated ({count} instance(s)): pos {position}, scale {scale}");
 			}
 		}
 
-		/// <summary>Modell-Pose aus der Config, im lokalen Raum der Waffenwurzel.</summary>
+		/// <summary>Model pose from the config, in the local space of the weapon root.</summary>
 		private static void GetModelPose(out Vector3 position, out Quaternion rotation, out float scale)
 		{
 			scale = Mathf.Max(0.01f, CfgModelScale.Value);
@@ -680,13 +680,13 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Klebt das Launcher-Modell an Item._handModelRight des eigenen Exemplars - das
-		/// animierte IK-Ziel der rechten Hand (PlayerHands.SyncHiddenHandsToAnimatedTool
-		/// setzt die Hand-Bones jeden LateUpdate genau dorthin, Tool.TryActivateAnimatedHands
-		/// nutzt es als IK-Ziel). Damit folgt der Launcher der kompletten Bewegungskette:
-		/// Sway/Bob/Recoil/ADS ueber die Tool-Hierarchie plus Feuer-/Reload-Animationen des
-		/// Rigs. Das Modell selbst bleibt Kind der Waffenwurzel (bleibt also gedroppt
-		/// sichtbar) und wird nur jede LateUpdate auf die Anker-Pose plus Offset gesetzt.
+		/// Glues the launcher model to this instance's Item._handModelRight - the right
+		/// hand's animated IK target (PlayerHands.SyncHiddenHandsToAnimatedTool sets the
+		/// hand bones exactly there every LateUpdate, Tool.TryActivateAnimatedHands uses it
+		/// as the IK target). This makes the launcher follow the entire movement chain:
+		/// sway/bob/recoil/ADS via the tool hierarchy plus the rig's firing/reload
+		/// animations. The model itself stays a child of the weapon root (so it stays
+		/// visible when dropped) and is only set to the anchor pose plus offset every LateUpdate.
 		/// </summary>
 		private class LauncherGlue : MonoBehaviour
 		{
@@ -698,15 +698,15 @@ namespace RocketLauncherMod
 
 			private Vector3 _localScale = Vector3.one;
 
-			/// <summary>True sobald Configure einmal gelaufen ist.</summary>
+			/// <summary>True once Configure has run once.</summary>
 			public bool IsConfigured { get; private set; }
 
 			/// <summary>
-			/// Ein geklontes Exemplar - durch /rocket beim Host, durch den FishNet-Spawn beim
-			/// Mitspieler - traegt zwar diese Komponente, aber nicht ihre privaten Felder:
-			/// Unity kopiert beim Instantiate nur serialisierten Zustand. Es zieht sich die
-			/// Pose deshalb hier selbst. Vorher suchte Update() dafuer jeden Frame per
-			/// Resources.FindObjectsOfTypeAll die komplette Szene ab.
+			/// A cloned instance - via /rocket on the host, via the FishNet spawn on a
+			/// fellow player - does carry this component, but not its private fields:
+			/// Unity only copies serialized state on Instantiate. It therefore pulls its own
+			/// pose here. Previously, Update() searched the entire scene for this every
+			/// frame via Resources.FindObjectsOfTypeAll.
 			/// </summary>
 			private void Awake()
 			{
@@ -717,8 +717,8 @@ namespace RocketLauncherMod
 				}
 			}
 
-			/// <summary>Offset im lokalen Raum der Waffenwurzel (so kommen die Werte aus /rocketmodel);
-			/// wird hier gegen die Ruhepose in den Anker-Raum des eigenen Exemplars umgerechnet.</summary>
+			/// <summary>Offset in the local space of the weapon root (this is how the values arrive
+			/// from /rocketmodel); converted here into this instance's anchor space against the rest pose.</summary>
 			public void Configure(Vector3 rootLocalPos, Quaternion rootLocalRot, float scale, Matrix4x4 rootToAnchorRest)
 			{
 				_anchorLocalRot = Quaternion.Inverse(rootToAnchorRest.rotation) * rootLocalRot;
@@ -749,10 +749,10 @@ namespace RocketLauncherMod
 				transform.localScale = _localScale;
 			}
 
-			/// <summary>Den Hand-Anker des eigenen Exemplars suchen: vom Modell die Hirarchie
-			/// hinauf zum Weapon-Component, dort das private _handModelRight ziehen. Das
-			/// Template ist inaktiv - sein LateUpdate laeuft nie, die Suche startet erst in
-			/// aktiven Exemplaren.</summary>
+			/// <summary>Find this instance's hand anchor: walk up the hierarchy from the model
+			/// to the Weapon component, then pull the private _handModelRight from there. The
+			/// template is inactive - its LateUpdate never runs, so the search only starts on
+			/// active instances.</summary>
 			private void FindAnchor()
 			{
 				Transform current = transform.parent;
@@ -843,8 +843,8 @@ namespace RocketLauncherMod
 					material.SetTexture("_MainTex", texture);
 				}
 			}
-			// InstanceManager.RenderBatches() zeichnet jeden registrierten Instanz-Typ per
-			// DrawMeshInstanced - ohne dieses Flag wirft das jeden Frame eine Exception.
+			// InstanceManager.RenderBatches() draws every registered instance type via
+			// DrawMeshInstanced - without this flag, that throws an exception every frame.
 			material.enableInstancing = true;
 			return material;
 		}
@@ -856,9 +856,9 @@ namespace RocketLauncherMod
 	}
 
 	/// <summary>
-	/// Zeichnet jede fliegende Rakete als eigenes GameObject. Das Spiel rendert Geschosse per
-	/// Graphics.DrawMeshInstanced - bei einer 45 cm langen Rakete ist ein normaler MeshRenderer
-	/// verlaesslicher (und erlaubt spaeter Rauchfahne/Licht als Kind-Objekte).
+	/// Draws each flying rocket as its own GameObject. The game renders projectiles via
+	/// Graphics.DrawMeshInstanced - for a 45 cm long rocket, a normal MeshRenderer is
+	/// more reliable (and later allows a smoke trail/light as child objects).
 	/// </summary>
 	public static class RocketVisuals
 	{
@@ -880,7 +880,7 @@ namespace RocketLauncherMod
 			{
 				return;
 			}
-			// Gleiche Interpolation wie im Spiel: die Positionen kommen aus FixedUpdate.
+			// Same interpolation as the game: the positions come from FixedUpdate.
 			float t = (Time.fixedDeltaTime > 0f) ? Mathf.Clamp01((Time.time - Time.fixedTime) / Time.fixedDeltaTime) : 1f;
 			foreach (Projectile projectile in projectiles)
 			{
@@ -894,10 +894,10 @@ namespace RocketLauncherMod
 				visual.transform.SetPositionAndRotation(pos, (forward.sqrMagnitude > 0.0001f) ? Quaternion.LookRotation(forward) : Quaternion.identity);
 				visual.transform.localScale = scale;
 			}
-			// Kein Count-Vergleich als Abkuerzung: detoniert in einem Frame eine Rakete waehrend
-			// eine neue startet, sind die Counts gleich - der Eintrag der toten Rakete bliebe
-			// samt sichtbarem GameObject fuer immer stehen. Bei einer Handvoll Raketen ist der
-			// Durchlauf ohnehin gratis.
+			// No count comparison as a shortcut: if a rocket detonates in the same frame that
+			// a new one launches, the counts match - the dead rocket's entry, GameObject and
+			// all, would stick around forever. With a handful of rockets, the full scan is
+			// essentially free anyway.
 			_finished.Clear();
 			foreach (KeyValuePair<Projectile, GameObject> pair in _live)
 			{
@@ -971,7 +971,7 @@ namespace RocketLauncherMod
 			{
 				return;
 			}
-			// Der AddProjectile-Body haengt die Rakete an type.Projectiles - unsere ist die letzte.
+			// The AddProjectile body appends the rocket to type.Projectiles - ours is the last one.
 			ProjectileType type = __instance.GetType(Plugin.RocketTypeId);
 			if (type.Projectiles.Count == 0)
 			{
@@ -995,8 +995,8 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Vanilla entfernt Geschosse im Wasser oder ausserhalb der Reichweite kommentarlos.
-		/// Eine Rakete muss dabei detonieren - auch wenn sie nie etwas getroffen hat.
+		/// Vanilla removes projectiles in water or out of range silently.
+		/// A rocket must detonate in that case - even if it never hit anything.
 		/// </summary>
 		[HarmonyPatch(typeof(ProjectileManager), "UpdateProjectileScan")]
 		[HarmonyPrefix]
@@ -1011,7 +1011,7 @@ namespace RocketLauncherMod
 				Detonate(__instance, projectile, projectile.Position);
 				return false;
 			}
-			// Wasser: erst ab etwas Abstand zum Abschusspunkt, sonst detoniert sie beim Schwimmen sofort im Gesicht.
+			// Water: only once there's some distance from the launch point, otherwise it detonates in your face immediately while swimming.
 			float waterHeight = WaterManager.GetWaterHeight(projectile.Position);
 			if (projectile.Position.y < waterHeight && (projectile.Position - projectile.SpawnPos).sqrMagnitude > 4f)
 			{
@@ -1024,8 +1024,8 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Die Rakete wird von RocketVisuals als GameObject gezeichnet - der Instancing-Batch
-		/// des Spiels bleibt fuer sie leer, sonst haetten wir sie doppelt.
+		/// The rocket is drawn by RocketVisuals as a GameObject - the game's instancing
+		/// batch stays empty for it, otherwise we'd render it twice.
 		/// </summary>
 		[HarmonyPatch(typeof(ProjectileManager), "UpdateMatrices")]
 		[HarmonyPrefix]
@@ -1041,7 +1041,7 @@ namespace RocketLauncherMod
 			if (_maxRangeSqr < 0f)
 			{
 				_maxRangeSqr = (float)AccessTools.Field(typeof(ProjectileManager), "_sqrMaxProjRange").GetValue(manager);
-				Plugin.Log.LogInfo($"Max. Geschossreichweite: {Mathf.Sqrt(_maxRangeSqr):0}m");
+				Plugin.Log.LogInfo($"Max. projectile range: {Mathf.Sqrt(_maxRangeSqr):0}m");
 			}
 			return _maxRangeSqr;
 		}
@@ -1054,7 +1054,7 @@ namespace RocketLauncherMod
 			ExplodeAt(pos, projectile.Owner);
 		}
 
-		/// <summary>Raketenmotor: die Rakete beschleunigt nach dem Abschuss bis zur Endgeschwindigkeit.</summary>
+		/// <summary>Rocket motor: the rocket accelerates after launch up to its top speed.</summary>
 		private static void ApplyThrust(ProjectileManager manager)
 		{
 			float acceleration = (Plugin.CfgAcceleration != null) ? Plugin.CfgAcceleration.Value : 0f;
@@ -1074,10 +1074,10 @@ namespace RocketLauncherMod
 			}
 		}
 
-		/// <summary>Nach jedem Schuss auffuellen wenn: unendlich Ammo (AmmoPerMag=0 => Config 0)
-		/// ODER Instant-Reload (ReloadSpeed 0/sehr klein). Sonst wuerde der Vanilla-Reload-Queue
-		/// oder Ammo==0 die Waffe blockieren.
-		/// Muss in dieser Klasse liegen - Start() patcht ausschliesslich typeof(Patches).</summary>
+		/// <summary>Refill after every shot when: infinite ammo (AmmoPerMag=0 => config 0)
+		/// OR instant reload (ReloadSpeed 0/very small). Otherwise the vanilla reload queue
+		/// or Ammo==0 would block the weapon.
+		/// Must live in this class - Start() only patches typeof(Patches).</summary>
 		[HarmonyPatch(typeof(Weapon), "Shoot")]
 		[HarmonyPostfix]
 		public static void Weapon_Shoot_Postfix(Weapon __instance)
@@ -1101,17 +1101,17 @@ namespace RocketLauncherMod
 			if (attachments != null && __instance.Ammo != attachments.AmmoPerMag)
 			{
 				AccessTools.Property(typeof(Weapon), "Ammo").GetSetMethod(nonPublic: true).Invoke(__instance, new object[1] { attachments.AmmoPerMag });
-				// Reload-Queue des Vanilla-Codes zuruecksetzen.
+				// Reset the vanilla code's reload queue.
 				SetField(__instance, "_queueReload", false);
 				SetField(__instance, "_isReloading", false);
 				SetField(__instance, "_reloadAmmoRefilled", true);
 			}
 		}
 
-		/// <summary>Ueber die Item-ID pruefen, nicht ueber die Referenz auf das Template:
-		/// RocketLauncherItem ist nur der Bauplan, jeder gespawnte Launcher ist ein eigenes
-		/// Item. Mit dem Referenzvergleich hiess jeder echte Launcher in der Welt noch
-		/// "Sturmgewehr".</summary>
+		/// <summary>Check via the item ID, not via a reference to the template:
+		/// RocketLauncherItem is only the blueprint, every spawned launcher is its own
+		/// item. With a reference comparison, every real launcher in the world was still
+		/// called "Assault Rifle".</summary>
 		[HarmonyPatch(typeof(Item), "GetName")]
 		[HarmonyPostfix]
 		public static void Item_GetName_Postfix(Item __instance, ref string __result)
@@ -1214,14 +1214,14 @@ namespace RocketLauncherMod
 				}
 				if (!Server.Instance || !Server.Instance.IsServerInitialized)
 				{
-					// FishNet laesst nur den Server Objekte spawnen - das ist keine Mod-Grenze.
+					// FishNet only lets the server spawn objects - that's not a mod limitation.
 					ChatManager.ChatMessage("[RocketLauncherMod] only the host can spawn");
 					return;
 				}
-				// Ohne registriertes Netzwerk-Prefab kommt beim Mitspieler ein Sturmgewehr an.
+				// Without a registered network prefab, a fellow player sees an assault rifle.
 				if (!Plugin.EnsureNetworkPrefabRegistered())
 				{
-					ChatManager.ChatMessage("[RocketLauncherMod] Warnung: Netzwerk-Prefab nicht registriert - Mitspieler sehen ein Sturmgewehr (siehe BepInEx-Log)");
+					ChatManager.ChatMessage("[RocketLauncherMod] Warning: network prefab not registered - fellow players will see an assault rifle (see BepInEx log)");
 				}
 				Vector3 position = GameInfo.CurCamera.transform.position + GameInfo.CurCamera.transform.forward * 2f;
 				Item item = UnityEngine.Object.Instantiate(Plugin.RocketLauncherItem, position, Quaternion.identity);
@@ -1236,8 +1236,8 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// /rocketcfg <setting> [wert] - Waffeneinstellungen live aendern. Ohne Wert: aktueller Stand.
-		/// Wirkt auf das Template und alle bereits gespawnten Launcher (die kopieren die Felder).
+		/// /rocketcfg <setting> [value] - change weapon settings live. Without a value: shows the current state.
+		/// Affects the template and all already spawned launchers (they copy the fields).
 		/// </summary>
 		private static void ConfigCommand(string fullCommand)
 		{
@@ -1266,36 +1266,36 @@ namespace RocketLauncherMod
 					ApplyInt(parts, Plugin.CfgKnockback);
 					break;
 				case "reset":
-					// Aus DefaultValue statt aus abgeschriebenen Literalen: die driften sonst
-					// von den Config.Bind-Defaults weg, sobald dort einer geaendert wird.
+					// From DefaultValue rather than copied-out literals: otherwise these would
+					// drift from the Config.Bind defaults as soon as one of them is changed.
 					ResetToDefault(Plugin.CfgTimeBetweenShots);
 					ResetToDefault(Plugin.CfgAmmoPerMag);
 					ResetToDefault(Plugin.CfgReloadSpeed);
 					ResetToDefault(Plugin.CfgScreenRecoil);
 					ResetToDefault(Plugin.CfgModelRecoil);
 					ResetToDefault(Plugin.CfgKnockback);
-					// break statt return: sonst laeuft das ApplyToLaunchers() am Methodenende
-					// nicht und der Reset blieb reine Kosmetik in der Config.
+					// break instead of return: otherwise ApplyToLaunchers() at the end of the
+					// method wouldn't run and the reset would stay purely cosmetic in the config.
 					break;
 				case "show":
 				case "help":
-					ChatManager.ChatMessage("[Rocket] /rocketcfg firerate|ammo|reload|recoil|modelrecoil|knockback [wert] | reset - ohne Wert zeigt den aktuellen Stand");
+					ChatManager.ChatMessage("[Rocket] /rocketcfg firerate|ammo|reload|recoil|modelrecoil|knockback [value] | reset - without a value shows the current state");
 					return;
 				default:
-					ChatManager.ChatMessage($"[Rocket] unbekannte Einstellung '{sub}'. Bekannt: firerate, ammo, reload, recoil, modelrecoil, knockback, reset");
+					ChatManager.ChatMessage($"[Rocket] unknown setting '{sub}'. Known: firerate, ammo, reload, recoil, modelrecoil, knockback, reset");
 					return;
 				}
 			}
 			catch (Exception ex)
 			{
-				ChatManager.ChatMessage("[Rocket] Eingabe nicht lesbar: " + ex.Message);
+				ChatManager.ChatMessage("[Rocket] input not readable: " + ex.Message);
 				return;
 			}
 			ApplyToLaunchers();
 			ChatManager.ChatMessage($"[Rocket] firerate {Plugin.CfgTimeBetweenShots.Value:0.###}s | ammo {Plugin.CfgAmmoPerMag.Value} | reload x{Plugin.CfgReloadSpeed.Value:0.##} | recoil {Plugin.CfgScreenRecoil.Value:0.##} | modelrecoil x{Plugin.CfgModelRecoil.Value:0.##} | knockback {Plugin.CfgKnockback.Value}");
 		}
 
-		/// <summary>Setzt einen Config-Eintrag auf den in Config.Bind hinterlegten Default.</summary>
+		/// <summary>Resets a config entry to the default stored in Config.Bind.</summary>
 		private static void ResetToDefault<T>(ConfigEntry<T> entry)
 		{
 			if (entry != null && entry.DefaultValue is T value)
@@ -1322,7 +1322,7 @@ namespace RocketLauncherMod
 			}
 		}
 
-		/// <summary>Config-Staende auf Template + alle gespawnten Launcher-Exemplare anwenden.</summary>
+		/// <summary>Apply config values to the template + all spawned launcher instances.</summary>
 		private static void ApplyToLaunchers()
 		{
 			ApplyToWeapon(Plugin.RocketLauncherItem != null ? Plugin.RocketLauncherItem.GetComponent<Weapon>() : null);
@@ -1377,8 +1377,8 @@ namespace RocketLauncherMod
 					}
 					break;
 				case "reset":
-					// Vorher Nullvektor/Scale 1 - das ist NICHT der Default, sondern schob das
-					// Modell aus der Hand. Die eingemessenen Werte stehen in Config.Bind.
+					// Previously a zero vector/scale 1 - that is NOT the default, it pushed the
+					// model out of the hand. The measured-in values live in Config.Bind.
 					ResetToDefault(Plugin.CfgModelPos);
 					ResetToDefault(Plugin.CfgModelRot);
 					ResetToDefault(Plugin.CfgModelScale);
@@ -1393,7 +1393,7 @@ namespace RocketLauncherMod
 			}
 			catch (Exception ex)
 			{
-				ChatManager.ChatMessage("[Rocket] Eingabe nicht lesbar: " + ex.Message);
+				ChatManager.ChatMessage("[Rocket] input not readable: " + ex.Message);
 				return;
 			}
 			Plugin.ApplyModelTransform();
@@ -1415,14 +1415,14 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Schreibt Haende, Original-Sturmgewehr und Launcher als eine OBJ im lokalen Raum der
-		/// Waffe. In Blender liegt damit exakt die Situation vor, die man im Spiel sieht.
+		/// Writes hands, original assault rifle, and launcher as one OBJ in the weapon's
+		/// local space. In Blender this gives you exactly the situation you see in-game.
 		/// </summary>
 		private static void ExportForBlender()
 		{
 			if (Plugin.ModelTransform == null)
 			{
-				ChatManager.ChatMessage("[Rocket] Launcher noch nicht gebaut.");
+				ChatManager.ChatMessage("[Rocket] Launcher not built yet.");
 				return;
 			}
 			Player player = Player.LocalPlayer;
@@ -1430,7 +1430,7 @@ namespace RocketLauncherMod
 			Weapon weapon = (held != null) ? held.GetComponent<Weapon>() : null;
 			if (weapon == null || held.ID != Plugin.ItemId)
 			{
-				ChatManager.ChatMessage("[Rocket] Bitte den Rocket Launcher in die Hand nehmen und nochmal /rocketmodel export.");
+				ChatManager.ChatMessage("[Rocket] Please hold the Rocket Launcher and run /rocketmodel export again.");
 				return;
 			}
 			Transform root = weapon.transform;
@@ -1453,10 +1453,10 @@ namespace RocketLauncherMod
 				{
 					Mesh baked = new Mesh();
 					rifleSkin.BakeMesh(baked, useScale: true);
-					writer.Add("AssaultRifle_Referenz", baked, root, rifleSkin.transform);
+					writer.Add("AssaultRifle_Reference", baked, root, rifleSkin.transform);
 				}
 			}
-			// Das Modell des gehaltenen Exemplars, nicht das des Templates.
+			// The model of the held instance, not the template's.
 			Transform model = root.Find(Plugin.ModelObjectName) ?? Plugin.ModelTransform;
 			writer.Add("RocketLauncher", Plugin.LauncherMesh, root, model);
 
@@ -1465,15 +1465,15 @@ namespace RocketLauncherMod
 			Directory.CreateDirectory(dir);
 			File.WriteAllText(path, writer.Build());
 			Vector3 pos = Plugin.CfgModelPos.Value;
-			Plugin.Log.LogInfo("Blender-Export: " + path);
-			Plugin.Log.LogInfo($"Aktuelle Werte: pos {pos.x:0.###} {pos.y:0.###} {pos.z:0.###}, scale {Plugin.CfgModelScale.Value:0.###}");
-			ChatManager.ChatMessage("[Rocket] Export nach StreamingAssets/mods/blender_scene.obj");
+			Plugin.Log.LogInfo("Blender export: " + path);
+			Plugin.Log.LogInfo($"Current values: pos {pos.x:0.###} {pos.y:0.###} {pos.z:0.###}, scale {Plugin.CfgModelScale.Value:0.###}");
+			ChatManager.ChatMessage("[Rocket] Exported to StreamingAssets/mods/blender_scene.obj");
 		}
 
-		/// <summary>Minimaler OBJ-Schreiber: alle Meshes in den lokalen Raum der Waffe umgerechnet.</summary>
+		/// <summary>Minimal OBJ writer: all meshes converted into the weapon's local space.</summary>
 		private class ObjWriter
 		{
-			private readonly StringBuilder _sb = new StringBuilder("# How to Fish - Rocket Launcher Ausrichtung\n# Koordinaten = lokaler Raum der Waffe (Unity: X rechts, Y hoch, Z vorne)\n");
+			private readonly StringBuilder _sb = new StringBuilder("# How to Fish - Rocket Launcher Alignment\n# Coordinates = local space of the weapon (Unity: X right, Y up, Z forward)\n");
 			private int _offset = 1;
 
 			public void Add(string name, Mesh mesh, Transform root, Transform source)
@@ -1538,8 +1538,8 @@ namespace RocketLauncherMod
 				Item item = ItemManager.Get(hit.collider);
 				if (item != null)
 				{
-					// Merken, damit die Explosion diesen Fisch nicht ZUSATZLICH als Explosionskill zaehlt,
-					// wenn der Direkttreffer ihn bereits getoetet hat (sonst doppelter Killscore-Eintrag).
+					// Remember this so the explosion doesn't ADDITIONALLY count this fish as an explosion
+					// kill if the direct hit already killed it (otherwise a duplicate killscore entry).
 					directHitCreature = item;
 					item.LocalHit(hit.transform, hit.point, projectile.Velocity.normalized, projectile.Owner, projectile.Damage, rangedHit: true, projectile.Velocity.normalized * projectile.Force);
 					if (item.Explosive != null)
@@ -1583,13 +1583,13 @@ namespace RocketLauncherMod
 				Player playerFromBodyPart = PlayerManager.GetPlayerFromBodyPart(collider.transform);
 				if (playerFromBodyPart != null && !playerFromBodyPart.IsDeinitializing && vector.sqrMagnitude <= info.DamageRadius * info.DamageRadius)
 				{
-					// Unterwasser-Detonation verletzt Spieler nicht - genau wie Dynamit im Wasser.
+					// Underwater detonation doesn't injure players - just like dynamite in water.
 					if (!underWater && !hitPlayers.Contains(playerFromBodyPart))
 					{
 						hitPlayers.Add(playerFromBodyPart);
 						Vector3 force = vector.normalized * info.PlayerForce;
 						Server.Instance.HitPlayer(playerFromBodyPart, info.Damage, force, collider.transform.position, 0, player);
-						// Punkte fuer einen toedlichen Treffer auf Mitspieler - wie beim Dynamit.
+						// Points for a lethal hit on a fellow player - same as with dynamite.
 						if ((bool)player && playerFromBodyPart != player && playerFromBodyPart.Vitals.Health > 0
 							&& playerFromBodyPart.Vitals.Health - info.Damage <= 0 && ServerSettings.UseFriendlyFire)
 						{
@@ -1601,8 +1601,8 @@ namespace RocketLauncherMod
 				Item item = ItemManager.Get(collider);
 				if (item == null)
 				{
-					// Boot-Kollider sind keine Items - ohne diesen Zweig spueren Explosionen
-					// das Boot gar nicht (Vanilla-Dynamit schubst es via HiddenPhysicsRig weg).
+					// Boat colliders are not items - without this branch, explosions wouldn't
+					// affect the boat at all (vanilla dynamite pushes it away via HiddenPhysicsRig).
 					if (BoatManager.ColToBoat.TryGetValue(collider, out Boat boat))
 					{
 						boat.HiddenPhysicsRig.AddExplosionForce(info.BoatForce, pos, info.DamageRadius, 2f);
@@ -1611,16 +1611,16 @@ namespace RocketLauncherMod
 				}
 				if (item.Creature != null && !damaged.Contains(item.Creature) && !item.Creature.IsDead && vector.sqrMagnitude <= info.DamageRadius * info.DamageRadius)
 				{
-					// Direkttreffer hat den Fisch lokal schon als tot verbucht (Killscore lief dort ueber
-					// GetRangedBonuses) -> kein zweiter Eintrag als Explosionskill. Lebt er noch (z.B. Wal,
-					// der 150 Direktschaden ueberlebt), nimmt er ganz normal Schaden durch die Explosion.
+					// A direct hit has already booked the fish as dead locally (killscore went through
+					// GetRangedBonuses there) -> no second entry as an explosion kill. If it's still
+					// alive (e.g. a whale that survives 150 direct damage), it takes normal explosion damage.
 					bool killedByDirectHit = item == directHitCreature
 						&& _localIsDeadField != null && (bool)_localIsDeadField.GetValue(item.Creature);
 					if (!killedByDirectHit)
 					{
 						int damage = DamageOnCreature(info.Damage, item.Creature);
 						item.Creature.ServerChangeHp(damage);
-						// Reihenfolge wie im Original: Hp ist hier noch der Wert von vor dem Treffer.
+						// Order matches the original: Hp here is still the value from before the hit.
 						if (item.Creature.Hp - damage <= 0)
 						{
 							killed.Add(item.Creature);
@@ -1653,9 +1653,9 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Killscore fuer Explosionskills - benutzt die TargetRpc des Spiels, damit die Punkte
-		/// beim Schuetzen ankommen (auch im Multiplayer) und dieselbe Bonus-Berechnung
-		/// (KillScoreCalculator.GetExplosionBonuses) durchlaufen wie beim Dynamit.
+		/// Killscore for explosion kills - uses the game's TargetRpc so the points reach
+		/// the shooter (including in multiplayer) and go through the same bonus calculation
+		/// (KillScoreCalculator.GetExplosionBonuses) as with dynamite.
 		/// </summary>
 		private static void AwardKillScore(Player player, List<Creature> killed)
 		{
@@ -1667,7 +1667,7 @@ namespace RocketLauncherMod
 			foreach (Creature creature in killed)
 			{
 				string name = creature.GetName();
-				// TotalWorth bewusst vor SetKillscoreMultiplier lesen - wie im Original.
+				// Deliberately read TotalWorth before SetKillscoreMultiplier - as in the original.
 				if (!summary.TryGetValue(name, out Vector2Int entry))
 				{
 					summary[name] = new Vector2Int(1, creature.TotalWorth);
@@ -1696,7 +1696,7 @@ namespace RocketLauncherMod
 			{
 				creature.SetKillscoreMultiplier(1.25f);
 			}
-			Plugin.Log.LogInfo($"Explosionskill: {names} (+{worth})");
+			Plugin.Log.LogInfo($"Explosion kill: {names} (+{worth})");
 		}
 
 		private static readonly MethodInfo _sendExplosionKills = AccessTools.Method(typeof(ExplosionManager), "SendExplosionKills");
@@ -1727,8 +1727,8 @@ namespace RocketLauncherMod
 		}
 
 		/// <summary>
-		/// Dynamit-im-Wasser-Effekt: die Detonation treibt tote Fische an die Oberflaeche.
-		/// Die zaehlen wie beim Dynamit als Kills und wandern deshalb in die Killscore-Liste.
+		/// Dynamite-in-water effect: the detonation floats dead fish up to the surface.
+		/// These count as kills just like with dynamite, so they go into the killscore list.
 		/// </summary>
 		private static void SpawnDeadFish(Vector3 pos, ExplosionInfo info, List<Creature> damaged, List<Creature> killed)
 		{
